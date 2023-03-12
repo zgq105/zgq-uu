@@ -16,22 +16,54 @@
 
 package com.guoqiang.uu.navigation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.guoqiang.uu.Greeting
 import com.guoqiang.uu.ui.mime.MimeScreen
+import com.guoqiang.uu.ui.mime.PersonInfoScreen
 
 const val UU_MIME_NAVIGATION_ROUTE = "uu_mime"
+const val UU_MIME_PERSON_INFO_ROUTE = "uu_mime_person_info"
 
 fun NavController.navigateToForMime(navOptions: NavOptions? = null) {
     this.navigate(UU_MIME_NAVIGATION_ROUTE, navOptions)
 }
 
-fun NavGraphBuilder.uuMimeScreen(onTopicClick: (String) -> Unit) {
+fun NavGraphBuilder.navMimeScreen(
+    nestedGraphs: NavGraphBuilder.() -> Unit,
+    onPersonInfoClick: () -> Unit
+) {
     composable(route = UU_MIME_NAVIGATION_ROUTE) {
-        MimeScreen()
+        // 创建渐变色
+        val verticalGradientBrush = Brush.verticalGradient(
+            colors = listOf(
+                Color(0xFFFAF8F8),
+                Color(0xFFDAD6D6)
+            )
+        )
+        Surface(
+            Modifier
+                .background(brush = verticalGradientBrush)
+                .fillMaxSize()
+        ) {
+            MimeScreen(onPersonInfoClick)
+        }
+    }
+    nestedGraphs()
+}
+
+
+fun NavGraphBuilder.navPersonInfoScreen(onBackClick: () -> Unit) {
+    composable(route = UU_MIME_PERSON_INFO_ROUTE) {
+        PersonInfoScreen(onBackClick)
     }
 }
 

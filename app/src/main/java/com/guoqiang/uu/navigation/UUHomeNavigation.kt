@@ -31,7 +31,7 @@ fun NavController.navigateToForHome(navOptions: NavOptions? = null) {
     this.navigate(UU_HOME_NAVIGATION_ROUTE, navOptions)
 }
 
-fun NavGraphBuilder.uuHomeScreen(onTopicClick: (String) -> Unit) {
+fun NavGraphBuilder.navHomeScreen(onTopicClick: (String) -> Unit) {
     composable(route = UU_HOME_NAVIGATION_ROUTE) {
         HomeScreen()
     }

@@ -23,13 +23,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.guoqiang.uu.Greeting
 import com.guoqiang.uu.R
 import com.guoqiang.uu.ui.icon.Icon
+import com.guoqiang.uu.ui.theme.PurpleGrey80
+import com.guoqiang.uu.ui.theme.ZgquuTheme
 
 /**
  * author: zgq
@@ -37,9 +42,13 @@ import com.guoqiang.uu.ui.icon.Icon
  * destcription:
  */
 @Composable
-fun MimeScreen() {
-    Column(Modifier.padding(16.dp, 12.dp)) {
-        PersonHeadArea(PersonInfo("UU12334444", "plus会员2"))
+fun MimeScreen(onPersonInfoClick: () -> Unit) {
+
+    Column(
+        Modifier
+            .padding(16.dp, 12.dp)
+    ) {
+        PersonHeadArea(PersonInfo("UU12334444", "plus会员2"),onPersonInfoClick)
         Spacer(Modifier.height(20.dp))
         PersonOrderStatusSection()
         Spacer(Modifier.height(8.dp))
@@ -53,8 +62,10 @@ fun MimeScreen() {
 data class PersonInfo(val name: String, val userLevel: String)
 
 @Composable
-fun PersonHeadArea(personInfo: PersonInfo) {
-    Row {
+fun PersonHeadArea(personInfo: PersonInfo,onPersonInfoClick: () -> Unit) {
+    Row (Modifier.clickable {
+        onPersonInfoClick.invoke()
+    }){
         Image(
             painter = painterResource(R.drawable.ic_person_icon),
             contentDescription = "",
@@ -86,38 +97,37 @@ fun PersonHeadArea(personInfo: PersonInfo) {
 fun PersonOrderStatusSection() {
     Card(
         modifier = Modifier
-            .background(Color.White)
             .clip(RoundedCornerShape(8.dp))
             .fillMaxWidth()
     ) {
-        Row {
+        Row(Modifier.background(PurpleGrey80)) {
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(16.dp)
             ) {
-                ImageTextVertical(Icons.Filled.Phone, "待支付",Modifier)
+                ImageTextVertical(Icons.Filled.Phone, "待支付", Modifier)
             }
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(16.dp)
             ) {
-                ImageTextVertical(Icons.Filled.Phone, "待接单",Modifier)
+                ImageTextVertical(Icons.Filled.Phone, "待接单", Modifier)
             }
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(16.dp)
             ) {
-                ImageTextVertical(Icons.Filled.Phone, "进行中",Modifier)
+                ImageTextVertical(Icons.Filled.Phone, "进行中", Modifier)
             }
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(16.dp)
             ) {
-                ImageTextVertical(Icons.Filled.Phone, "已完成",Modifier)
+                ImageTextVertical(Icons.Filled.Phone, "已完成", Modifier)
             }
         }
     }
@@ -137,46 +147,48 @@ fun ImageTextVertical(imageVector: ImageVector, text: String, modifier: Modifier
 fun NormalFunctionSection() {
     Card(
         modifier = Modifier
-            .background(Color.White)
             .clip(RoundedCornerShape(8.dp))
             .fillMaxWidth()
     ) {
-        Row(Modifier.padding(16.dp, 8.dp)) {
-            Text(
-                text = "常用功能",
-                style = MaterialTheme.typography.titleLarge
-            )
+        Column(Modifier.background(PurpleGrey80)) {
+            Row(Modifier.padding(16.dp, 8.dp)) {
+                Text(
+                    text = "常用功能",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+            Row {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(16.dp)
+                ) {
+                    ImageTextVertical(Icons.Filled.MailOutline, "钱包", Modifier)
+                }
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(16.dp)
+                ) {
+                    ImageTextVertical(Icons.Filled.Menu, "消息", Modifier)
+                }
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(16.dp)
+                ) {
+                    ImageTextVertical(Icons.Filled.LocationOn, "客服", Modifier)
+                }
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(16.dp)
+                ) {
+                    ImageTextVertical(Icons.Filled.Settings, "设置", Modifier)
+                }
+            }
         }
-        Row {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(16.dp)
-            ) {
-                ImageTextVertical(Icons.Filled.MailOutline, "钱包",Modifier)
-            }
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(16.dp)
-            ) {
-                ImageTextVertical(Icons.Filled.Menu, "消息",Modifier)
-            }
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(16.dp)
-            ) {
-                ImageTextVertical(Icons.Filled.LocationOn, "客服",Modifier)
-            }
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(16.dp)
-            ) {
-                ImageTextVertical(Icons.Filled.Settings, "设置",Modifier)
-            }
-        }
+
     }
 }
 
@@ -189,7 +201,11 @@ fun OtherServiceGrid(serviceItems: List<ServiceItem>) {
         modifier = Modifier.padding(16.dp)
     ) {
         items(serviceItems) { item ->
-            ImageTextVertical(imageVector = item.imageVector, text = item.text,Modifier.padding(8.dp))
+            ImageTextVertical(
+                imageVector = item.imageVector,
+                text = item.text,
+                Modifier.padding(8.dp)
+            )
         }
     }
 }
@@ -202,20 +218,38 @@ fun OtherService() {
             .clip(RoundedCornerShape(8.dp))
             .fillMaxWidth()
     ) {
-        Row(Modifier.padding(16.dp, 8.dp)) {
-            Text(
-                text = "其他服务",
-                style = MaterialTheme.typography.titleLarge
-            )
+        Column(Modifier.background(PurpleGrey80)) {
+            Row(Modifier.padding(16.dp, 8.dp)) {
+                Text(
+                    text = "其他服务",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+            val list = arrayListOf<ServiceItem>()
+            list.add(ServiceItem(Icons.Outlined.Favorite, "口令优惠券"))
+            list.add(ServiceItem(Icons.Outlined.Favorite, "意见反馈"))
+            list.add(ServiceItem(Icons.Outlined.Favorite, "保险服务"))
+            list.add(ServiceItem(Icons.Outlined.Favorite, "声请商户"))
+            list.add(ServiceItem(Icons.Outlined.Favorite, "企业账号"))
+            list.add(ServiceItem(Icons.Outlined.Favorite, "接单赚钱"))
+            OtherServiceGrid(list)
         }
-        val list = arrayListOf<ServiceItem>()
-        list.add(ServiceItem(Icons.Outlined.Favorite, "口令优惠券"))
-        list.add(ServiceItem(Icons.Outlined.Favorite, "意见反馈"))
-        list.add(ServiceItem(Icons.Outlined.Favorite, "保险服务"))
-        list.add(ServiceItem(Icons.Outlined.Favorite, "声请商户"))
-        list.add(ServiceItem(Icons.Outlined.Favorite, "企业账号"))
-        list.add(ServiceItem(Icons.Outlined.Favorite, "接单赚钱"))
-        OtherServiceGrid(list)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PersonOrderStatusSectionPreview() {
+    ZgquuTheme {
+        PersonOrderStatusSection()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NormalFunctionSectionPreview() {
+    ZgquuTheme {
+        NormalFunctionSection()
     }
 }
 

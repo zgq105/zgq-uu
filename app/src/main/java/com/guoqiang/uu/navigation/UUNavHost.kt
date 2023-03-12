@@ -33,7 +33,11 @@ fun UUNavHost(
         startDestination = startDestination,
         modifier = modifier,
     ) {
-        uuHomeScreen(onTopicClick = {})
-        uuMimeScreen(onTopicClick = {})
+        navHomeScreen(onTopicClick = {})
+        navMimeScreen(nestedGraphs = {
+            navPersonInfoScreen(onBackClick = navController::popBackStack)
+        }, onPersonInfoClick = {
+            navController.navigate(UU_MIME_PERSON_INFO_ROUTE)
+        })
     }
 }
