@@ -35,9 +35,9 @@ fun UUNavHost(
     ) {
         navHomeScreen(onTopicClick = {})
         navMimeScreen(nestedGraphs = {
-            navPersonInfoScreen(onBackClick = navController::popBackStack)
-        }, onPersonInfoClick = {
-            navController.navigate(UU_MIME_PERSON_INFO_ROUTE)
-        })
+            navPersonInfoScreen(navController,onBackClick = navController::popBackStack)
+            navSelectIndustryScreen(onBackClick = navController::popBackStack)
+            navVerifiedInfoScreen(onBackClick = navController::popBackStack)
+        }, navController)
     }
 }

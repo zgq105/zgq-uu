@@ -30,8 +30,10 @@ import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.guoqiang.uu.Greeting
 import com.guoqiang.uu.R
+import com.guoqiang.uu.navigation.UU_MIME_PERSON_INFO_ROUTE
 import com.guoqiang.uu.ui.icon.Icon
 import com.guoqiang.uu.ui.theme.PurpleGrey80
 import com.guoqiang.uu.ui.theme.ZgquuTheme
@@ -42,13 +44,15 @@ import com.guoqiang.uu.ui.theme.ZgquuTheme
  * destcription:
  */
 @Composable
-fun MimeScreen(onPersonInfoClick: () -> Unit) {
+fun MimeScreen(navController: NavController) {
 
     Column(
         Modifier
             .padding(16.dp, 12.dp)
     ) {
-        PersonHeadArea(PersonInfo("UU12334444", "plus会员2"),onPersonInfoClick)
+        PersonHeadArea(PersonInfo("UU12334444", "plus会员2")) {
+            navController.navigate(UU_MIME_PERSON_INFO_ROUTE)
+        }
         Spacer(Modifier.height(20.dp))
         PersonOrderStatusSection()
         Spacer(Modifier.height(8.dp))
@@ -63,9 +67,12 @@ data class PersonInfo(val name: String, val userLevel: String)
 
 @Composable
 fun PersonHeadArea(personInfo: PersonInfo,onPersonInfoClick: () -> Unit) {
-    Row (Modifier.clickable {
-        onPersonInfoClick.invoke()
-    }){
+    Row (
+        Modifier
+            .fillMaxWidth()
+            .clickable {
+                onPersonInfoClick.invoke()
+            }){
         Image(
             painter = painterResource(R.drawable.ic_person_icon),
             contentDescription = "",

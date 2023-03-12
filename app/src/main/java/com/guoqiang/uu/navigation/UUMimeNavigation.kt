@@ -24,14 +24,19 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.guoqiang.uu.Greeting
 import com.guoqiang.uu.ui.mime.MimeScreen
 import com.guoqiang.uu.ui.mime.PersonInfoScreen
+import com.guoqiang.uu.ui.mime.SelectIndustryScreen
+import com.guoqiang.uu.ui.mime.VerifiedInfo
 
 const val UU_MIME_NAVIGATION_ROUTE = "uu_mime"
 const val UU_MIME_PERSON_INFO_ROUTE = "uu_mime_person_info"
+const val UU_MIME_SELECT_INDUSTRY = "uu_mime_select_industry"
+const val UU_MIME_VERIFIED_INFO = "uu_mime_verified_info"
 
 fun NavController.navigateToForMime(navOptions: NavOptions? = null) {
     this.navigate(UU_MIME_NAVIGATION_ROUTE, navOptions)
@@ -39,7 +44,7 @@ fun NavController.navigateToForMime(navOptions: NavOptions? = null) {
 
 fun NavGraphBuilder.navMimeScreen(
     nestedGraphs: NavGraphBuilder.() -> Unit,
-    onPersonInfoClick: () -> Unit
+    navController: NavHostController
 ) {
     composable(route = UU_MIME_NAVIGATION_ROUTE) {
         // 创建渐变色
@@ -54,16 +59,30 @@ fun NavGraphBuilder.navMimeScreen(
                 .background(brush = verticalGradientBrush)
                 .fillMaxSize()
         ) {
-            MimeScreen(onPersonInfoClick)
+            MimeScreen(navController)
         }
     }
     nestedGraphs()
 }
 
 
-fun NavGraphBuilder.navPersonInfoScreen(onBackClick: () -> Unit) {
+fun NavGraphBuilder.navPersonInfoScreen(navController: NavHostController, onBackClick: () -> Unit) {
     composable(route = UU_MIME_PERSON_INFO_ROUTE) {
-        PersonInfoScreen(onBackClick)
+        PersonInfoScreen(navController,onBackClick)
+    }
+}
+
+fun NavGraphBuilder.navSelectIndustryScreen(
+    onBackClick: () -> Unit
+) {
+    composable(route = UU_MIME_SELECT_INDUSTRY) {
+        SelectIndustryScreen(onBackClick)
+    }
+}
+
+fun NavGraphBuilder.navVerifiedInfoScreen(onBackClick: () -> Unit){
+    composable(route = UU_MIME_VERIFIED_INFO) {
+        VerifiedInfo(onBackClick)
     }
 }
 
