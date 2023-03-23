@@ -1,13 +1,30 @@
 package com.guoqiang.uu.ui.home
 
 import android.annotation.SuppressLint
-import android.content.res.Resources
-import android.graphics.BitmapFactory
-import android.util.Log
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.magnifier
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.aallam.openai.api.BetaOpenAI
+import com.aallam.openai.api.audio.TranscriptionRequest
+import com.aallam.openai.api.audio.TranslationRequest
 import com.aallam.openai.api.chat.ChatCompletionRequest
 import com.aallam.openai.api.chat.ChatMessage
 import com.aallam.openai.api.chat.ChatRole
@@ -15,16 +32,22 @@ import com.aallam.openai.api.completion.CompletionRequest
 import com.aallam.openai.api.completion.TextCompletion
 import com.aallam.openai.api.edits.EditsRequest
 import com.aallam.openai.api.file.FileSource
+import com.aallam.openai.api.file.FileUpload
+import com.aallam.openai.api.file.Purpose
 import com.aallam.openai.api.image.ImageCreation
 import com.aallam.openai.api.image.ImageEdit
 import com.aallam.openai.api.image.ImageSize
 import com.aallam.openai.api.image.ImageVariation
 import com.aallam.openai.api.model.Model
 import com.aallam.openai.api.model.ModelId
+import com.aallam.openai.api.moderation.ModerationRequest
 import com.aallam.openai.client.OpenAI
+import com.guoqiang.uu.ChatGptTest
 import com.guoqiang.uu.GlobalData
 import com.guoqiang.uu.Greeting
+import com.guoqiang.uu.R
 import com.guoqiang.uu.ui.icon.UUIcons
+import com.guoqiang.uu.ui.theme.ZgquuTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -41,140 +64,153 @@ import okio.source
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
-    Column {
-        CenterAlignedTopAppBar(
-            actions = {
-                IconButton(onClick = {}) {
-                    Icon(
-                        imageVector = UUIcons.Settings,
-                        contentDescription = "",
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-            },
-            title = {
-                Text(text = "UU")
-            })
+    LazyColumn {
+        item {
+            MainToolbar()
+        }
+        item {
+            MainBanner()
+        }
 
-        Greeting("HOME")
+//        GlobalScope.launch {
+//            withContext(Dispatchers.IO) {
+//                ChatGptTest.testImages()
+//            }
+//        }
+    }
+}
 
-        GlobalScope.launch {
-            withContext(Dispatchers.IO) {
-                //testCompletion()
-//                testChat()
-                //testEdits()
-//                testImages()
-//                testEditImages()
-//                testImageVariation()
+@Composable
+fun MainToolbar() {
+    Row(
+        Modifier
+            .background(MaterialTheme.colorScheme.primary),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            Modifier
+                .weight(1F)
+                .padding(16.dp)
+        ) {
+            Row {
+                Text(
+                    text = "你好",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
+            Spacer(modifier = Modifier.height(6.dp))
+            Row {
+                Text(
+                    text = "欢迎来到人工智能聊天",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+        Column(Modifier.padding(16.dp)) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                null,
+                Modifier
+                    .clickable {
+                    },
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainBanner() {
+    Card(
+        onClick = { }, modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.primary)
+        ) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.mipmap.ic_home_banner), null, Modifier
+                                .fillMaxSize(), contentScale = ContentScale.FillBounds
+                        )
+                    }
+                    Box(Modifier.align(Alignment.BottomStart)) {
+                        TextButton(
+                            onClick = {},
+                            Modifier
+                                .clip(RoundedCornerShape(2.dp, 2.dp, 2.dp, 2.dp))
+                                .padding(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                MaterialTheme.colorScheme.onPrimary,
+                                MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Text(
+                                text = "AI管家",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
 
-@OptIn(BetaOpenAI::class)
-suspend fun testImageVariation(){
-    val openAI = OpenAI(API_KEY)
-    val context = GlobalData.context ?: return
-    val imageFileSource = context.resources.openRawResource(com.guoqiang.uu.R.raw.test1).source()
-    val images = openAI.imageURL(
-        variation = ImageVariation(
-            image = FileSource(name = "image.png", source = imageFileSource),
-            n = 1,
-            size = ImageSize.is512x512
-        )
-    )
-    images.forEach {
-        Log.d("zgq", "image-url:${it.url}")
+                    Box(Modifier.align(Alignment.BottomEnd)) {
+                        TextButton(
+                            onClick = {},
+                            Modifier
+                                .clip(RoundedCornerShape(6.dp, 6.dp, 6.dp, 6.dp))
+                                .padding(2.dp)
+                                .size(80.dp, 30.dp)
+                                ,
+                            colors = ButtonDefaults.buttonColors(
+                                MaterialTheme.colorScheme.onPrimary,
+                                MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Text(
+                                text = "去试试>>",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                }
+            }
+            Row(Modifier.padding(16.dp, 10.dp, 0.dp, 0.dp)) {
+                Text(
+                    text = "不知道的事都可以尝试问我哦~",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+
     }
 }
 
-//todo
-@OptIn(BetaOpenAI::class)
-suspend fun testEditImages(){
-    val openAI = OpenAI(API_KEY)
-    val context = GlobalData.context ?: return
-    val imageFileSource = context.resources.openRawResource(com.guoqiang.uu.R.raw.test1).source()
-    val maskFileSource = context.resources.openRawResource(com.guoqiang.uu.R.raw.test2).source()
-    val images = openAI.imageURL(
-        edit = ImageEdit(
-            image = FileSource("image.png",imageFileSource),
-            mask = FileSource("mask.png",maskFileSource),
-            prompt = "a sunlit indoor lounge area with a pool containing a flamingo",
-            n = 1,
-            size = ImageSize.is512x512
-        )
-    )
-    images.forEach {
-        Log.d("zgq", "image-url:${it.url}")
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    ZgquuTheme {
+        MainBanner()
     }
 }
 
-@OptIn(BetaOpenAI::class)
-suspend fun testImages() {
-    val openAI = OpenAI(API_KEY)
-    val imageURL = openAI.imageURL(
-        ImageCreation(
-            "一个杯子，年轻化元素，设计一个产品",
-            2, ImageSize.is512x512
-        )
-    )
-    imageURL.forEach {
-        Log.d("zgq", "image-url:${it.url}")
-    }
-}
-
-suspend fun testEdits() {
-    val openAI = OpenAI(API_KEY)
-    val edit = openAI.edit(
-        request = EditsRequest(
-            model = ModelId("text-davinci-edit-001"),
-            input = "中华人民功和国",
-            instruction = "修改错别字"
-        )
-    )
-    edit.choices.forEach {
-        Log.d("zgq", "choice-text:${it.text}")
-        Log.d("zgq", "choice-finishReason:${it.finishReason}")
-    }
-}
-
-@OptIn(BetaOpenAI::class)
-suspend fun testChat() {
-    val openAI = OpenAI(API_KEY)
-    val chatCompletionRequest = ChatCompletionRequest(
-        model = ModelId("gpt-3.5-turbo"),
-        messages = listOf(
-            ChatMessage(
-                role = ChatRole.User,
-                content = "曾国藩是谁"
-            )
-        )
-    )
-    val completion = openAI.chatCompletion(chatCompletionRequest)
-    completion.choices.forEach {
-        Log.d("zgq", "choice-name:${it.message?.name}")
-        Log.d("zgq", "choice-content:${it.message?.content}")
-    }
-}
-
-const val API_KEY = "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"
-
-suspend fun testCompletion() {
-    val openAI = OpenAI(API_KEY)
-    val models = openAI.models()
-    models.forEach {
-        Log.d("zgq", "model:${it.id.id}")
-    }
-
-    val completionRequest = CompletionRequest(
-        model = ModelId("text-ada-001"),
-        prompt = "where is china",
-        echo = true
-    )
-    val completion: TextCompletion = openAI.completion(completionRequest)
-    completion.choices.forEach {
-        Log.d("zgq", "choice:${it.text}")
-    }
-
-}

@@ -26,6 +26,7 @@ import com.guoqiang.uu.navigation.TopLevelDestination
 import com.guoqiang.uu.navigation.UUNavHost
 import com.guoqiang.uu.navigation.navigateToForHome
 import com.guoqiang.uu.navigation.navigateToForMime
+import com.guoqiang.uu.ui.home.HomeScreen
 import com.guoqiang.uu.ui.icon.Icon
 import com.guoqiang.uu.ui.icon.UUIcons
 import com.guoqiang.uu.ui.theme.ZgquuTheme
@@ -49,7 +50,6 @@ class MainActivity : ComponentActivity() {
         var uiState: MainActivityUiState by mutableStateOf(MainActivityUiState.Loading)
 
         lifecycleScope.launchWhenStarted {
-            delay(2000)
             uiState = MainActivityUiState.Success
         }
         splashScreen.setKeepOnScreenCondition {
@@ -113,7 +113,7 @@ fun UUApp() {
         contentColor = MaterialTheme.colorScheme.onBackground,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-            UUBottomBar(topLevelDestinations, navController, currentDestination, Modifier)
+            //UUBottomBar(topLevelDestinations, navController, currentDestination, Modifier)
         }
     ) { padding ->
         Row(
@@ -128,7 +128,8 @@ fun UUApp() {
                 ),
         ) {
             Column(Modifier.fillMaxSize()) {
-                UUNavHost(navController = navController)
+                //UUNavHost(navController = navController)
+                HomeScreen()
             }
         }
 
