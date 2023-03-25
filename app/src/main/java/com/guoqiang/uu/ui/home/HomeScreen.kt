@@ -1,12 +1,18 @@
 package com.guoqiang.uu.ui.home
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,6 +28,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.aallam.openai.api.BetaOpenAI
 import com.aallam.openai.api.audio.TranscriptionRequest
 import com.aallam.openai.api.audio.TranslationRequest
@@ -44,10 +53,12 @@ import com.aallam.openai.api.moderation.ModerationRequest
 import com.aallam.openai.client.OpenAI
 import com.guoqiang.uu.ChatGptTest
 import com.guoqiang.uu.GlobalData
-import com.guoqiang.uu.Greeting
 import com.guoqiang.uu.R
+import com.guoqiang.uu.navigation.UU_CHAT_AI_MAJORDOMO_ROUTE
 import com.guoqiang.uu.ui.icon.UUIcons
-import com.guoqiang.uu.ui.theme.ZgquuTheme
+import com.guoqiang.uu.ui.theme.*
+import com.guoqiang.uu.utils.LogUtil
+import com.guoqiang.uu.viewmodel.UserViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -63,13 +74,83 @@ import okio.source
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavHostController) {
+    val userViewModel: UserViewModel = hiltViewModel()
+
     LazyColumn {
         item {
-            MainToolbar()
+            MainToolbar(settingClick = {
+                //userViewModel.testInsertUserData()
+                userViewModel.test()
+            })
         }
         item {
-            MainBanner()
+            MainBanner {
+                navController.navigate(UU_CHAT_AI_MAJORDOMO_ROUTE)
+            }
+        }
+        item {
+            Row(Modifier.padding(16.dp, 0.dp, 8.dp, 0.dp)) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(0.dp, 0.dp, 8.dp, 8.dp)
+                ) {
+                    MainGridItem(
+                        MainContent("AI翻译官", "精通全球各种自然语言，试试让我帮你翻译"),
+                        Color(0xFF22ACEB)
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(0.dp, 0.dp, 8.dp, 8.dp)
+                ) {
+                    MainGridItem(MainContent("AI解惑", "生活琐事，工作困扰，各种问题都可以找我哦"), Color(0xFFF07B72))
+                }
+            }
+        }
+
+        item {
+            Row(Modifier.padding(16.dp, 0.dp, 8.dp, 0.dp)) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(0.dp, 0.dp, 8.dp, 8.dp)
+                ) {
+                    MainGridItem(MainContent("AI玄机", "破解难题，探索宇宙奥义，探讨生命的本质"), Color(0xFF6D7FE6))
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(0.dp, 0.dp, 8.dp, 8.dp)
+                ) {
+                    MainGridItem(MainContent("Al作家", "我会文案/检讨书/演讲稿等，说出你的要求吧"), Color(0xFFEC5B8C))
+                }
+            }
+        }
+
+        item {
+            Row(Modifier.padding(16.dp, 0.dp, 8.dp, 0.dp)) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(0.dp, 0.dp, 8.dp, 8.dp)
+                ) {
+                    MainGridItem(MainContent("AI厨师", "试试问问我美味佳肴是如何做出来的吧"), Color(0xFFF0C33B))
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(0.dp, 0.dp, 8.dp, 8.dp)
+                ) {
+                    MainGridItem(MainContent("Al诗人", "试试让我按照您的要求帮您创作独一无二的诗"), Color(0xFFF39E20))
+                }
+            }
+        }
+
+        item {
+            MainBottomBanner()
         }
 
 //        GlobalScope.launch {
@@ -80,8 +161,9 @@ fun HomeScreen() {
     }
 }
 
+
 @Composable
-fun MainToolbar() {
+fun MainToolbar(settingClick: () -> Unit) {
     Row(
         Modifier
             .background(MaterialTheme.colorScheme.primary),
@@ -114,6 +196,7 @@ fun MainToolbar() {
                 null,
                 Modifier
                     .clickable {
+                        settingClick.invoke()
                     },
                 tint = MaterialTheme.colorScheme.onPrimary
             )
@@ -123,9 +206,9 @@ fun MainToolbar() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainBanner() {
+fun MainBanner(onclick: () -> Unit) {
     Card(
-        onClick = { }, modifier = Modifier
+        onClick = { onclick.invoke() }, modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
@@ -156,7 +239,7 @@ fun MainBanner() {
                         TextButton(
                             onClick = {},
                             Modifier
-                                .clip(RoundedCornerShape(2.dp, 2.dp, 2.dp, 2.dp))
+                                .clip(RoundedCornerShape(2.dp))
                                 .padding(8.dp),
                             colors = ButtonDefaults.buttonColors(
                                 MaterialTheme.colorScheme.onPrimary,
@@ -174,10 +257,9 @@ fun MainBanner() {
                         TextButton(
                             onClick = {},
                             Modifier
-                                .clip(RoundedCornerShape(6.dp, 6.dp, 6.dp, 6.dp))
+                                .clip(RoundedCornerShape(6.dp))
                                 .padding(2.dp)
-                                .size(80.dp, 30.dp)
-                                ,
+                                .size(80.dp, 30.dp),
                             colors = ButtonDefaults.buttonColors(
                                 MaterialTheme.colorScheme.onPrimary,
                                 MaterialTheme.colorScheme.primary
@@ -200,17 +282,114 @@ fun MainBanner() {
             }
             Spacer(modifier = Modifier.height(16.dp))
         }
-
-
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainBottomBanner() {
+    Card(
+        onClick = { }, modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .background(Color(0xFF8F5AEC))
+        ) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.mipmap.ic_home_banner), null, Modifier
+                                .fillMaxSize(), contentScale = ContentScale.FillBounds
+                        )
+                    }
+                    Box(Modifier.align(Alignment.BottomStart)) {
+                        TextButton(
+                            onClick = {},
+                            Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .padding(2.dp)
+                                .size(80.dp, 34.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                MaterialTheme.colorScheme.onPrimary,
+                                MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Text(
+                                text = "AI作画",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                }
+            }
+
+            Row(Modifier.padding(16.dp, 10.dp, 0.dp, 0.dp)) {
+                Text(
+                    text = "告诉我你想生成什么风格的图片，我会帮你精心出图哦~",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainGridItem(item: MainContent, color: Color) {
+    Card(
+        onClick = {}, Modifier
+            .clip(RoundedCornerShape(4.dp))
+    ) {
+        Column(
+            Modifier
+                .background(color)
+                .padding(8.dp)
+        ) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = item.title,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = item.desc,
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+data class MainContent(
+    val title: String,
+    val desc: String
+)
 
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     ZgquuTheme {
-        MainBanner()
+        //MainGridItem(MainContent("AI翻译官", "精通全球各种自然语言，试试让我帮你翻译"))
     }
 }
 

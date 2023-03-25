@@ -32,6 +32,7 @@ import com.guoqiang.uu.ui.icon.UUIcons
 import com.guoqiang.uu.ui.theme.ZgquuTheme
 import com.guoqiang.uu.viewmodel.MainActivityUiState
 import com.guoqiang.uu.viewmodel.MainActivityViewModel
+import com.guoqiang.uu.viewmodel.UserViewModel
 import com.guoqiang.uu.widget.UUNavigationBar
 import com.guoqiang.uu.widget.UUNavigationBarItem
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,8 +40,12 @@ import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     val viewModel: MainActivityViewModel by viewModels()
+
+    override fun onResume() {
+        super.onResume()
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,48 +77,17 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.values().asList()
-
-private fun NavDestination?.isTopLevelDestinationInHierarchy(destination: TopLevelDestination) =
-    this?.hierarchy?.any {
-        it.route?.contains(destination.name, true) ?: false
-    } ?: false
-
-fun navigateToTopLevelDestination(
-    navController: NavController,
-    topLevelDestination: TopLevelDestination
-) {
-    trace("Navigation: ${topLevelDestination.name}") {
-        val topLevelNavOptions = navOptions {
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
-
-        when (topLevelDestination) {
-            TopLevelDestination.UU_HOME -> navController.navigateToForHome(topLevelNavOptions)
-            TopLevelDestination.UU_MIME -> navController.navigateToForMime(topLevelNavOptions)
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun UUApp() {
     val snackbarHostState = remember { SnackbarHostState() }
     val navController = rememberNavController()
 
-    val currentDestination = navController
-        .currentBackStackEntryAsState().value?.destination
-
     Scaffold(modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onBackground,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-            //UUBottomBar(topLevelDestinations, navController, currentDestination, Modifier)
         }
     ) { padding ->
         Row(
@@ -128,64 +102,10 @@ fun UUApp() {
                 ),
         ) {
             Column(Modifier.fillMaxSize()) {
-                //UUNavHost(navController = navController)
-                HomeScreen()
+                UUNavHost(navController = navController)
             }
         }
 
     }
 
-}
-
-@Composable
-private fun UUBottomBar(
-    destinations: List<TopLevelDestination>,
-    navController: NavController,
-    currentDestination: NavDestination?,
-    modifier: Modifier = Modifier,
-) {
-    UUNavigationBar(
-        modifier = modifier,
-    ) {
-        destinations.forEach { destination ->
-            val selected = currentDestination.isTopLevelDestinationInHierarchy(destination)
-            UUNavigationBarItem(
-                selected = selected,
-                onClick = { navigateToTopLevelDestination(navController, destination) },
-                icon = {
-                    val icon = if (selected) {
-                        destination.selectedIcon
-                    } else {
-                        destination.unselectedIcon
-                    }
-                    when (icon) {
-                        is Icon.ImageVectorIcon -> Icon(
-                            imageVector = icon.imageVector,
-                            contentDescription = null,
-                        )
-
-                        is Icon.DrawableResourceIcon -> Icon(
-                            painter = painterResource(id = icon.id),
-                            contentDescription = null,
-                        )
-                    }
-                },
-                label = { Text(stringResource(destination.iconTextId)) },
-            )
-        }
-    }
-}
-
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    ZgquuTheme {
-        Greeting("Android")
-    }
 }

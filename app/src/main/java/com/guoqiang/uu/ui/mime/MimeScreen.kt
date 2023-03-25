@@ -31,7 +31,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.guoqiang.uu.Greeting
 import com.guoqiang.uu.R
 import com.guoqiang.uu.navigation.UU_MIME_PERSON_INFO_ROUTE
 import com.guoqiang.uu.ui.icon.Icon

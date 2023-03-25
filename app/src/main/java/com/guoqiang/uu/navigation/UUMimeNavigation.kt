@@ -27,7 +27,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.guoqiang.uu.Greeting
 import com.guoqiang.uu.ui.mime.MimeScreen
 import com.guoqiang.uu.ui.mime.PersonInfoScreen
 import com.guoqiang.uu.ui.mime.SelectIndustryScreen

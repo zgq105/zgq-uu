@@ -16,26 +16,30 @@
 
 package com.guoqiang.uu.navigation
 
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.guoqiang.uu.ui.home.HomeScreen
-import com.guoqiang.uu.viewmodel.UserViewModel
+import com.guoqiang.uu.ui.chat.AIMajordomoScreen
+import com.guoqiang.uu.ui.mime.MimeScreen
+import com.guoqiang.uu.ui.mime.PersonInfoScreen
+import com.guoqiang.uu.ui.mime.SelectIndustryScreen
+import com.guoqiang.uu.ui.mime.VerifiedInfo
 
-const val UU_HOME_NAVIGATION_ROUTE = "uu_home"
+const val UU_CHAT_AI_MAJORDOMO_ROUTE = "uu_chat_ai_majordomo_route"
 
-fun NavController.navigateToForHome(navOptions: NavOptions? = null) {
-    this.navigate(UU_HOME_NAVIGATION_ROUTE, navOptions)
-}
-
-fun NavGraphBuilder.navHomeScreen(navController: NavHostController) {
-    composable(route = UU_HOME_NAVIGATION_ROUTE) {
-        HomeScreen(navController)
+fun NavGraphBuilder.navAiMajordomoScreen(navController: NavHostController) {
+    composable(route = UU_CHAT_AI_MAJORDOMO_ROUTE) {
+        AIMajordomoScreen(navController = navController)
     }
 }
+
 
 

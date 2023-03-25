@@ -19,24 +19,43 @@ package com.guoqiang.uu.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.guoqiang.uu.data.TestRepository
+import com.guoqiang.uu.data.UserRepository
 import com.guoqiang.uu.utils.LogUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class MainActivityViewModel @Inject constructor(
-    val repository: TestRepository
+class UserViewModel @Inject constructor(
+    private val repository: UserRepository
 ) : ViewModel() {
-   fun test(){
 
-   }
-}
+    fun test() {
+        LogUtil.d("zgq", "UserViewModel")
+    }
 
-sealed interface MainActivityUiState {
-    object Loading : MainActivityUiState
-    object Success : MainActivityUiState
+    fun getAll() {
+        viewModelScope.launch {
+            repository.getAll()
+        }
+    }
+
+    fun testInsertUserData() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                repository.testInsertUserData()
+                val list = repository.getAll()
+                list.forEach {
+                    LogUtil.d("user:" + it.username)
+                }
+            }
+
+        }
+    }
 }

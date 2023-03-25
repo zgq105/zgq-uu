@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import com.guoqiang.uu.viewmodel.UserViewModel
 
 
 @Composable
@@ -33,11 +34,7 @@ fun UUNavHost(
         startDestination = startDestination,
         modifier = modifier,
     ) {
-        navHomeScreen(onTopicClick = {})
-        navMimeScreen(nestedGraphs = {
-            navPersonInfoScreen(navController,onBackClick = navController::popBackStack)
-            navSelectIndustryScreen(onBackClick = navController::popBackStack)
-            navVerifiedInfoScreen(onBackClick = navController::popBackStack)
-        }, navController)
+        navHomeScreen(navController)
+        navAiMajordomoScreen(navController)
     }
 }
