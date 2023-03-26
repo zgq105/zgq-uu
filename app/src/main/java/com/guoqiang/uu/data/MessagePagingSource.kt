@@ -10,15 +10,14 @@ import kotlinx.coroutines.delay
  * date: 2023/3/25 19:19
  * destcription:
  */
-class UserPagingSource(private val dao: UserDao) : PagingSource<Int, User>() {
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, User> {
+class MessagePagingSource(private val dao: MessageDao, private val userIds: List<String>) :
+    PagingSource<Int, Message>() {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Message> {
         return try {
             val page = params.key ?: 0
             val pageSize = params.loadSize
             val offset = page * pageSize
-            LogUtil.d("zgq", "offset:$offset,pageSize:$pageSize")
-            delay(500)
-            val data = dao.getUsers(offset, pageSize)
+            val data = dao.getMessages(offset, pageSize, userIds)
             LoadResult.Page(
                 data = data,
                 prevKey = if (page == 0) null else page - 1,
@@ -30,7 +29,7 @@ class UserPagingSource(private val dao: UserDao) : PagingSource<Int, User>() {
         }
     }
 
-    override fun getRefreshKey(state: PagingState<Int, User>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, Message>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey
         }

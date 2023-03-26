@@ -18,6 +18,8 @@ package com.guoqiang.uu.data
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import com.guoqiang.uu.utils.LogUtil
+import kotlinx.coroutines.delay
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -31,9 +33,11 @@ class UserRepository @Inject constructor(
         return dao.getAll()
     }
 
-    suspend fun getUsers() = Pager(
+    fun getUsers() = Pager(
         config = PagingConfig(
             pageSize = 20,
+            enablePlaceholders = false,
+            initialLoadSize = 20
         ),
         pagingSourceFactory = {
             UserPagingSource(dao)
@@ -42,8 +46,9 @@ class UserRepository @Inject constructor(
 
    suspend fun testInsertUserData() {
         val users = arrayListOf<User>()
-        for (it in 0..100) {
+        for (it in 0..50) {
             val date = Date()
+            delay(200)
             users.add(
                 User(
                     "$it", "zgq$it", "123", null,
@@ -52,6 +57,7 @@ class UserRepository @Inject constructor(
             )
         }
         dao.insertUsers(users)
+       LogUtil.d("testInsertUserData end")
     }
 
     companion object {

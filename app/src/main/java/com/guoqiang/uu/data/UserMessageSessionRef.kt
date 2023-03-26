@@ -9,7 +9,7 @@ import java.util.*
  * date: 2023/3/25 17:06
  * destcription:
  */
-@Entity(primaryKeys = ["uid", "m_sid"])
+@Entity(tableName ="user_message_session_ref",primaryKeys = ["uid", "m_sid"])
 data class UserMessageSessionRef(
     @ColumnInfo(name = "uid") val uid: String,
     @ColumnInfo(name = "m_sid", index = true) val mSid: String,

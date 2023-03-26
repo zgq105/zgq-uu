@@ -80,8 +80,8 @@ fun HomeScreen(navController: NavHostController) {
     LazyColumn {
         item {
             MainToolbar(settingClick = {
-                //userViewModel.testInsertUserData()
-                userViewModel.test()
+//                userViewModel.testInsertUserData()
+                userViewModel.getAll()
             })
         }
         item {

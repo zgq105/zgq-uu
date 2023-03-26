@@ -17,10 +17,7 @@
 package com.guoqiang.uu.di
 
 import android.content.Context
-import com.guoqiang.uu.data.AppDatabase
-import com.guoqiang.uu.data.MessageDao
-import com.guoqiang.uu.data.MessageSessionDao
-import com.guoqiang.uu.data.UserDao
+import com.guoqiang.uu.data.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -51,5 +48,10 @@ class DatabaseModule {
     @Provides
     fun provideMessageSessionDao(appDatabase: AppDatabase): MessageSessionDao {
         return appDatabase.messageSessionDao()
+    }
+
+    @Provides
+    fun provideUserMessageSessionRefDao(appDatabase: AppDatabase): UserMessageSessionRefDao {
+        return appDatabase.userMessageSessionRefDao()
     }
 }

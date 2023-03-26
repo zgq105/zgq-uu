@@ -1,9 +1,6 @@
 package com.guoqiang.uu.data
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 
 /**
  * author: zgq
@@ -21,10 +18,13 @@ interface MessageDao {
     @Query("SELECT * FROM message WHERE content = :content LIMIT 1")
     fun findByContent(content: String): Message
 
-    @Insert
-    fun insertAll(vararg entities: Message)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(entities: List<Message>)
 
     @Delete
     fun delete(entity: Message)
+
+    @Query("SELECT * FROM message WHERE uid in (:userIds) ORDER BY u_time DESC LIMIT :pageSize OFFSET :offset")
+    suspend fun getMessages(offset: Int, pageSize: Int, userIds: List<String>): List<Message>
 
 }

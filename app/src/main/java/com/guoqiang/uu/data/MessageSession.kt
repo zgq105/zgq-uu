@@ -15,5 +15,5 @@ data class MessageSession(
     @PrimaryKey @ColumnInfo(name = "m_sid") val mSid: String,
     @ColumnInfo("c_time") val cTime: Date?,
     @ColumnInfo("u_time") val uTime: Date?,
-    @ColumnInfo("type") val type: Int,//1.ai翻译官，2.ai解惑，3.ai玄机，4.ai作家，5.ai厨师，6.ai诗人，7.ai文生图
+    @ColumnInfo("type") val type: Int,//1.ai管家，2.ai翻译官，3.ai解惑，4.ai玄机，5.ai作家，6.ai厨师，7.ai诗人，8.ai文生图
 )

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface UserDao {
-    @Query("SELECT * FROM user")
+    @Query("SELECT * FROM user ORDER BY u_time DESC")
     fun getAll(): List<User>
 
     @Query("SELECT * FROM user WHERE uid IN (:userIds)")

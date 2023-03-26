@@ -16,6 +16,8 @@
 
 package com.guoqiang.uu.data
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,6 +29,17 @@ class MessageRepository @Inject constructor(
     suspend fun getAll(): List<Message> {
         return dao.getAll()
     }
+
+    fun getMessages(userIds: List<String>) = Pager(
+        config = PagingConfig(
+            pageSize = 20,
+            enablePlaceholders = false,
+            initialLoadSize = 20
+        ),
+        pagingSourceFactory = {
+            MessagePagingSource(dao, userIds)
+        }
+    ).flow
 
     companion object {
 

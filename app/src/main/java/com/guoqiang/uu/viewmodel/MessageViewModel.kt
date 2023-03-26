@@ -18,20 +18,26 @@ package com.guoqiang.uu.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
+import com.guoqiang.uu.data.MessageRepository
+import com.guoqiang.uu.data.UserRepository
 import com.guoqiang.uu.utils.LogUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class MainActivityViewModel @Inject constructor() : ViewModel() {
+class MessageViewModel @Inject constructor(
+    private val repository: MessageRepository
+) : ViewModel() {
 
-}
+    fun getMessages(userIds: List<String>) =
+        repository.getMessages(userIds).cachedIn(viewModelScope)
 
-sealed interface MainActivityUiState {
-    object Loading : MainActivityUiState
-    object Success : MainActivityUiState
 }

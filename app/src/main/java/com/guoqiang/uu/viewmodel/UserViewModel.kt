@@ -18,7 +18,7 @@ package com.guoqiang.uu.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.guoqiang.uu.data.TestRepository
+import androidx.paging.cachedIn
 import com.guoqiang.uu.data.UserRepository
 import com.guoqiang.uu.utils.LogUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,24 +36,20 @@ class UserViewModel @Inject constructor(
     private val repository: UserRepository
 ) : ViewModel() {
 
-    fun test() {
-        LogUtil.d("zgq", "UserViewModel")
-    }
-
     fun getAll() {
-        viewModelScope.launch {
-            repository.getAll()
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getAll().forEach {
+                LogUtil.d("uid:" + it.uid + "username:" + it.username + "uTime：" + it.uTime)
+            }
         }
     }
+
+    fun getUsers() = repository.getUsers().cachedIn(viewModelScope)
 
     fun testInsertUserData() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 repository.testInsertUserData()
-                val list = repository.getAll()
-                list.forEach {
-                    LogUtil.d("user:" + it.username)
-                }
             }
 
         }
