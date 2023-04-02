@@ -27,7 +27,7 @@ import okio.source
  * date: 2023/3/23 00:05
  * destcription:
  */
-object ChatGptTest {
+object ChatGptHelper {
     /**
      * 判断输入是否违规
      */
@@ -180,25 +180,28 @@ object ChatGptTest {
      * 聊天
      */
     @OptIn(BetaOpenAI::class)
-    suspend fun testChat() {
+    suspend fun chatAIMajordomo(input: String): List<String> {
         val openAI = OpenAI(API_KEY)
         val chatCompletionRequest = ChatCompletionRequest(
             model = ModelId("gpt-3.5-turbo"),
             messages = listOf(
                 ChatMessage(
                     role = ChatRole.User,
-                    content = "曾国藩是谁"
+                    content = input
                 )
             )
         )
         val completion = openAI.chatCompletion(chatCompletionRequest)
+        val result = arrayListOf<String>()
         completion.choices.forEach {
             Log.d("zgq", "choice-name:${it.message?.name}")
             Log.d("zgq", "choice-content:${it.message?.content}")
+            it.message?.content?.let { it1 -> result.add(it1) }
         }
+        return result
     }
 
-    const val API_KEY = "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"
+    const val API_KEY = "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"
 
     /**
      * 根据提示，输出文本选项

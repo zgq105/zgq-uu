@@ -21,10 +21,13 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(entities: List<Message>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertMessage(message: Message)
+
     @Delete
     fun delete(entity: Message)
 
-    @Query("SELECT * FROM message WHERE uid in (:userIds) ORDER BY u_time DESC LIMIT :pageSize OFFSET :offset")
+    @Query("SELECT * FROM message WHERE uid in (:userIds) ORDER BY u_time ASC LIMIT :pageSize OFFSET :offset")
     suspend fun getMessages(offset: Int, pageSize: Int, userIds: List<String>): List<Message>
 
 }

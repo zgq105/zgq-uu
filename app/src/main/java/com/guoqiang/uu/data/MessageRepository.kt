@@ -30,6 +30,10 @@ class MessageRepository @Inject constructor(
         return dao.getAll()
     }
 
+    suspend fun insertMessage(entity: Message) = dao.insertMessage(entity)
+
+    suspend fun insertMessages(entities: List<Message>) = dao.insertAll(entities)
+
     fun getMessages(userIds: List<String>) = Pager(
         config = PagingConfig(
             pageSize = 20,

@@ -1,20 +1,11 @@
 package com.guoqiang.uu.ui.home
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.magnifier
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
@@ -29,42 +20,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.aallam.openai.api.BetaOpenAI
-import com.aallam.openai.api.audio.TranscriptionRequest
-import com.aallam.openai.api.audio.TranslationRequest
-import com.aallam.openai.api.chat.ChatCompletionRequest
-import com.aallam.openai.api.chat.ChatMessage
-import com.aallam.openai.api.chat.ChatRole
-import com.aallam.openai.api.completion.CompletionRequest
-import com.aallam.openai.api.completion.TextCompletion
-import com.aallam.openai.api.edits.EditsRequest
-import com.aallam.openai.api.file.FileSource
-import com.aallam.openai.api.file.FileUpload
-import com.aallam.openai.api.file.Purpose
-import com.aallam.openai.api.image.ImageCreation
-import com.aallam.openai.api.image.ImageEdit
-import com.aallam.openai.api.image.ImageSize
-import com.aallam.openai.api.image.ImageVariation
-import com.aallam.openai.api.model.Model
-import com.aallam.openai.api.model.ModelId
-import com.aallam.openai.api.moderation.ModerationRequest
-import com.aallam.openai.client.OpenAI
-import com.guoqiang.uu.ChatGptTest
-import com.guoqiang.uu.GlobalData
 import com.guoqiang.uu.R
 import com.guoqiang.uu.navigation.UU_CHAT_AI_MAJORDOMO_ROUTE
-import com.guoqiang.uu.ui.icon.UUIcons
 import com.guoqiang.uu.ui.theme.*
-import com.guoqiang.uu.utils.LogUtil
 import com.guoqiang.uu.viewmodel.UserViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okio.Buffer
-import okio.source
 
 /**
  * author: zgq

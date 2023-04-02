@@ -20,3 +20,8 @@ data class Message(
     @ColumnInfo(name = "uid") val uid: String, //所属用户
     @ColumnInfo(name = "session_id") val sessionId: String, //所属会话
 )
+
+enum class MessageSource(val value: Int) {
+    ROBOT(1),
+    VISITOR(2)
+}

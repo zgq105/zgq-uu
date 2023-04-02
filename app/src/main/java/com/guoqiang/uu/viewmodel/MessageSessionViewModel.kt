@@ -19,9 +19,7 @@ package com.guoqiang.uu.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.guoqiang.uu.data.Message
-import com.guoqiang.uu.data.MessageRepository
-import com.guoqiang.uu.data.UserRepository
+import com.guoqiang.uu.data.*
 import com.guoqiang.uu.utils.LogUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -34,18 +32,13 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class MessageViewModel @Inject constructor(
-    private val repository: MessageRepository
+class MessageSessionViewModel @Inject constructor(
+    private val repository: MessageSessionRepository
 ) : ViewModel() {
 
-    fun getMessages(userIds: List<String>) =
-        repository.getMessages(userIds).cachedIn(viewModelScope)
+    suspend fun insertMessageSession(entity: MessageSession) = withContext(Dispatchers.IO) {
+        repository.insertMessageSession(entity)
+    }
 
-
-    suspend fun insertMessage(entity: Message) =
-        withContext(Dispatchers.IO) { repository.insertMessage(entity) }
-
-    suspend fun insertMessages(entities: List<Message>) =
-        withContext(Dispatchers.IO) { repository.insertMessages(entities) }
 
 }

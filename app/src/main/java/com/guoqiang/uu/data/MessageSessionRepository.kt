@@ -28,6 +28,8 @@ class MessageSessionRepository @Inject constructor(
         return dao.getAllMessageSessions()
     }
 
+    suspend fun insertMessageSession(entity: MessageSession) = dao.insertMessageSession(entity)
+
     companion object {
 
         // For Singleton instantiation
