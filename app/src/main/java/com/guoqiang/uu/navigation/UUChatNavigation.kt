@@ -27,6 +27,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import com.guoqiang.uu.ui.chat.AIDrawingScreen
 import com.guoqiang.uu.ui.chat.AIMajordomoScreen
 import com.guoqiang.uu.ui.mime.MimeScreen
 import com.guoqiang.uu.ui.mime.PersonInfoScreen
@@ -34,10 +35,17 @@ import com.guoqiang.uu.ui.mime.SelectIndustryScreen
 import com.guoqiang.uu.ui.mime.VerifiedInfo
 
 const val UU_CHAT_AI_MAJORDOMO_ROUTE = "uu_chat_ai_majordomo_route"
+const val  UU_CHAT_AI_DRAWING_ROUTE = "uu_chat_ai_drawing_route"
 
 fun NavGraphBuilder.navAiMajordomoScreen(navController: NavHostController) {
     composable(route = UU_CHAT_AI_MAJORDOMO_ROUTE) {
         AIMajordomoScreen(navController = navController)
+    }
+}
+
+fun NavGraphBuilder.navAiDrawingScreen(navController: NavHostController) {
+    composable(route = UU_CHAT_AI_DRAWING_ROUTE) {
+        AIDrawingScreen(navController = navController)
     }
 }
 

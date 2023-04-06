@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.guoqiang.uu.R
+import com.guoqiang.uu.navigation.UU_CHAT_AI_DRAWING_ROUTE
 import com.guoqiang.uu.navigation.UU_CHAT_AI_MAJORDOMO_ROUTE
 import com.guoqiang.uu.ui.theme.*
 import com.guoqiang.uu.viewmodel.UserViewModel
@@ -110,7 +111,9 @@ fun HomeScreen(navController: NavHostController) {
         }
 
         item {
-            MainBottomBanner()
+            MainBottomBanner{
+                navController.navigate(UU_CHAT_AI_DRAWING_ROUTE)
+            }
         }
 
 //        GlobalScope.launch {
@@ -247,9 +250,11 @@ fun MainBanner(onclick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainBottomBanner() {
+fun MainBottomBanner(onClick: () -> Unit) {
     Card(
-        onClick = { }, modifier = Modifier
+        onClick = {
+            onClick.invoke()
+        }, modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {

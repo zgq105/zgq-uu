@@ -53,7 +53,8 @@ object ChatGptHelper {
 
 
         val context = GlobalData.context ?: return
-        val imageFileSource = context.resources.openRawResource(com.guoqiang.uu.R.raw.test1).source()
+        val imageFileSource =
+            context.resources.openRawResource(com.guoqiang.uu.R.raw.test1).source()
 
         //上传文件
         val file = openAI.file(
@@ -107,7 +108,8 @@ object ChatGptHelper {
     suspend fun testImageVariation() {
         val openAI = OpenAI(API_KEY)
         val context = GlobalData.context ?: return
-        val imageFileSource = context.resources.openRawResource(com.guoqiang.uu.R.raw.test1).source()
+        val imageFileSource =
+            context.resources.openRawResource(com.guoqiang.uu.R.raw.test1).source()
         val images = openAI.imageURL(
             variation = ImageVariation(
                 image = FileSource(name = "image.png", source = imageFileSource),
@@ -125,7 +127,8 @@ object ChatGptHelper {
     suspend fun testEditImages() {
         val openAI = OpenAI(API_KEY)
         val context = GlobalData.context ?: return
-        val imageFileSource = context.resources.openRawResource(com.guoqiang.uu.R.raw.test1).source()
+        val imageFileSource =
+            context.resources.openRawResource(com.guoqiang.uu.R.raw.test1).source()
         val maskFileSource = context.resources.openRawResource(com.guoqiang.uu.R.raw.test2).source()
         val images = openAI.imageURL(
             edit = ImageEdit(
@@ -145,17 +148,24 @@ object ChatGptHelper {
      * 根据文字描述生成图片
      */
     @OptIn(BetaOpenAI::class)
-    suspend fun testImages() {
-        val openAI = OpenAI(API_KEY)
-        val imageURL = openAI.imageURL(
-            ImageCreation(
-                "一个杯子，年轻化元素，一张桌子，一台电脑，设计一个产品",
-                5, ImageSize.is1024x1024
+    suspend fun createImages(prompt: String): List<String> {
+        val images = arrayListOf<String>()
+        try {
+            val openAI = OpenAI(API_KEY)
+            val imageURL = openAI.imageURL(
+                ImageCreation(
+                    prompt,
+                    2, ImageSize.is1024x1024
+                )
             )
-        )
-        imageURL.forEach {
-            Log.d("zgq", "image-url:${it.url}")
+            imageURL.forEach {
+                Log.d("zgq", "image-url:${it.url}")
+                images.add(it.url)
+            }
+        } catch (e: Exception) {
+            Log.d("zgq", e.message.toString())
         }
+        return images
     }
 
     /**
@@ -201,7 +211,7 @@ object ChatGptHelper {
         return result
     }
 
-    const val API_KEY = "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"
+    const val API_KEY = "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"
 
     /**
      * 根据提示，输出文本选项

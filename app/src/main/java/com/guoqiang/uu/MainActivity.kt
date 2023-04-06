@@ -30,6 +30,7 @@ import com.guoqiang.uu.ui.home.HomeScreen
 import com.guoqiang.uu.ui.icon.Icon
 import com.guoqiang.uu.ui.icon.UUIcons
 import com.guoqiang.uu.ui.theme.ZgquuTheme
+import com.guoqiang.uu.utils.LogUtil
 import com.guoqiang.uu.viewmodel.MainActivityUiState
 import com.guoqiang.uu.viewmodel.MainActivityViewModel
 import com.guoqiang.uu.viewmodel.UserViewModel
@@ -37,6 +38,8 @@ import com.guoqiang.uu.widget.UUNavigationBar
 import com.guoqiang.uu.widget.UUNavigationBarItem
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
+import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

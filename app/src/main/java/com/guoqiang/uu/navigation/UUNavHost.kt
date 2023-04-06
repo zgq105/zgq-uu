@@ -36,5 +36,6 @@ fun UUNavHost(
     ) {
         navHomeScreen(navController)
         navAiMajordomoScreen(navController)
+        navAiDrawingScreen(navController)
     }
 }
