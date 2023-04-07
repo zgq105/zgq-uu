@@ -9,14 +9,18 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -69,6 +73,7 @@ fun AIDrawingScreen(navController: NavController) {
     var imageUrl by remember {
         mutableStateOf("")
     }
+    var inputText by remember { mutableStateOf("") }
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (title_bar, list, bottom_input, loading_ui) = createRefs()
@@ -95,7 +100,9 @@ fun AIDrawingScreen(navController: NavController) {
             .padding(0.dp, 0.dp, 0.dp, 8.dp), state = listState) {
 
             item {
-                AIDrawingOutlinedTextField()
+                AIDrawingOutlinedTextField {
+                    inputText = it
+                }
             }
 
             item {
@@ -131,7 +138,7 @@ fun AIDrawingScreen(navController: NavController) {
                 lifecycle.launch {
                     loading = true
                     withContext(Dispatchers.IO) {
-                        val images = ChatGptHelper.createImages(classify)
+                        val images = ChatGptHelper.createImages("$classify,$inputText")
                         imageUrl = images.first()
                     }
                     loading = false
@@ -160,24 +167,52 @@ fun AIDrawingScreen(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AIDrawingOutlinedTextField() {
+fun AIDrawingOutlinedTextField(textChangeListener: (String) -> Unit) {
     var text by remember { mutableStateOf("") }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(130.dp)
+            .padding(16.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
 
-    OutlinedTextField(
-        value = text,
-        onValueChange = { text = it },
-        label = { Text("写下你的创意") },
-        minLines = 3
-    )
-}
+    ) {
 
-@Composable
-fun AIDrawingButton(onClick: () -> Unit, text: String) {
-    Button(modifier = Modifier.height(60.dp), onClick = {
-        onClick.invoke()
-    }) {
-        Text(text = text)
+        TextField(
+            value = text,
+            onValueChange = {
+                text = it
+                textChangeListener.invoke(text)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp),
+            label = { Text("写下你的创意") },
+            minLines = 3,
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            )
+        )
+
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(0.dp, 8.dp, 16.dp, 8.dp), verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "23", style = MaterialTheme.typography.bodySmall)
+            Text(text = "/200", style = MaterialTheme.typography.bodySmall)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "清空",
+                style = TextStyle(color = MaterialTheme.colorScheme.primary, fontSize = 14.sp)
+            )
+        }
+
     }
+
 }
 
 @Preview(showBackground = true)
@@ -194,7 +229,9 @@ fun AIDrawingClassify(selectedClick: (String) -> Unit) {
     var selectedButtonIndex by remember { mutableStateOf(0) }
     val buttonLabels = listOf("人物", "建筑", "动物", "风景旅行", "设计素材", "绘画", "餐饮美食", "植物", "市场化妆", "家具")
     FlowRow(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp, 8.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         for (index in buttonLabels.indices) {
