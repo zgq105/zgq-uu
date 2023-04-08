@@ -20,6 +20,8 @@ import com.aallam.openai.api.image.ImageVariation
 import com.aallam.openai.api.model.ModelId
 import com.aallam.openai.api.moderation.ModerationRequest
 import com.aallam.openai.client.OpenAI
+import com.aallam.openai.client.OpenAIConfig
+import okio.Timeout
 import okio.source
 
 /**
@@ -193,7 +195,8 @@ object ChatGptHelper {
     suspend fun chatAIMajordomo(input: String): List<String> {
         val result = arrayListOf<String>()
         try {
-            val openAI = OpenAI(API_KEY)
+            val config = OpenAIConfig(token = API_KEY)
+            val openAI = OpenAI(config)
             val chatCompletionRequest = ChatCompletionRequest(
                 model = ModelId("gpt-3.5-turbo"),
                 messages = listOf(
@@ -216,7 +219,7 @@ object ChatGptHelper {
         return result
     }
 
-    const val API_KEY = "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"
+    const val API_KEY = "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"
 
     /**
      * 根据提示，输出文本选项
