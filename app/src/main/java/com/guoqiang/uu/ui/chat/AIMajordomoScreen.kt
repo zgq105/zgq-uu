@@ -268,8 +268,9 @@ private suspend fun send(
         )
         messages.add(message)
     }
-    messageViewModel.insertMessages(messages)
-
+    if (messages.isNotEmpty()) {
+        messageViewModel.insertMessages(messages)
+    }
 }
 
 @Preview(showBackground = true)

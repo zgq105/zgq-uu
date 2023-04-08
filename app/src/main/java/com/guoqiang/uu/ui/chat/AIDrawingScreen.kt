@@ -8,6 +8,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -17,39 +20,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import androidx.paging.compose.itemsIndexed
+import com.aallam.openai.api.BetaOpenAI
+import com.aallam.openai.api.image.ImageSize
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.guoqiang.uu.ChatGptHelper
 import com.guoqiang.uu.R
-import com.guoqiang.uu.data.AppDatabase
-import com.guoqiang.uu.data.Message
-import com.guoqiang.uu.data.MessageSession
-import com.guoqiang.uu.data.MessageSource
-import com.guoqiang.uu.navigation.UU_MIME_PERSON_INFO_ROUTE
-import com.guoqiang.uu.ui.icon.Icon
-import com.guoqiang.uu.ui.mime.ShowAvatarSetting
-import com.guoqiang.uu.ui.theme.PurpleGrey80
 import com.guoqiang.uu.ui.theme.ZgquuTheme
 import com.guoqiang.uu.utils.LogUtil
-import com.guoqiang.uu.viewmodel.MessageSessionViewModel
-import com.guoqiang.uu.viewmodel.MessageViewModel
-import com.guoqiang.uu.viewmodel.UserViewModel
 import com.guoqiang.uu.widget.AICenterAlignedTopAppBar
 import com.guoqiang.uu.widget.AICenterLoading
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.filter
 import java.util.*
 
 /**
@@ -59,21 +56,29 @@ import java.util.*
  */
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
-    ExperimentalGlideComposeApi::class
+    ExperimentalGlideComposeApi::class, BetaOpenAI::class
 )
 @Composable
 fun AIDrawingScreen(navController: NavController) {
+    //remember vs rememberSaveable
     val listState = rememberLazyListState()
     var loading by remember {
         mutableStateOf(false)
     }
     val lifecycle = rememberCoroutineScope()
-
     var classify = "人物"
-    var imageUrl by remember {
-        mutableStateOf("")
-    }
+    //跨越组件通信 @Composable
+    var imageUrls by rememberSaveable { mutableStateOf(arrayListOf<String>()) }
     var inputText by remember { mutableStateOf("") }
+
+    var isAIDrawingEditImageDialog by remember { mutableStateOf(false) }
+    if (isAIDrawingEditImageDialog) {
+        AIDrawingEditImageDialog(onDismissRequest = {
+            isAIDrawingEditImageDialog = false
+        }, cancelClick = {
+            isAIDrawingEditImageDialog = false
+        })
+    }
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (title_bar, list, bottom_input, loading_ui) = createRefs()
@@ -97,7 +102,7 @@ fun AIDrawingScreen(navController: NavController) {
                 width = Dimension.fillToConstraints
                 height = Dimension.fillToConstraints
             }
-            .padding(0.dp, 0.dp, 0.dp, 8.dp), state = listState) {
+            .padding(bottom = 8.dp), state = listState) {
 
             item {
                 AIDrawingOutlinedTextField {
@@ -112,19 +117,10 @@ fun AIDrawingScreen(navController: NavController) {
             }
 
             item {
-                GlideImage(
-                    model = imageUrl,
-                    contentDescription = "暂无图片",
-                    modifier = Modifier
-                        .padding(6.dp)
-                        .clickable(onClick = {
-
-                        })
-                        .fillMaxWidth()
-                        .height(300.dp),
-                )
+                AIDrawingImageArea(imageUrls, imageClick = {
+                    isAIDrawingEditImageDialog = true
+                })
             }
-
         }
 
         Box(modifier = Modifier.constrainAs(bottom_input) {
@@ -137,9 +133,17 @@ fun AIDrawingScreen(navController: NavController) {
                 loading = true
                 lifecycle.launch {
                     loading = true
-                    withContext(Dispatchers.IO) {
-                        val images = ChatGptHelper.createImages("$classify,$inputText")
-                        imageUrl = images.first()
+                    val prompt = "$classify $inputText"
+                    LogUtil.d("zgq", "prompt:$prompt")
+                    val images = withContext(Dispatchers.IO) {
+                        ChatGptHelper.createImages(
+                            prompt,
+                            ImageSize.is1024x1024
+                        )
+                    }
+                    if (images.isNotEmpty()) {
+                        imageUrls.clear()
+                        imageUrls.addAll(images)
                     }
                     loading = false
                 }
@@ -169,21 +173,25 @@ fun AIDrawingScreen(navController: NavController) {
 @Composable
 fun AIDrawingOutlinedTextField(textChangeListener: (String) -> Unit) {
     var text by remember { mutableStateOf("") }
-    Box(
+
+    var inputTextSize by remember {
+        mutableStateOf(0)
+    }
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(130.dp)
             .padding(16.dp)
             .clip(RoundedCornerShape(8.dp))
             .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
-
     ) {
-
         TextField(
             value = text,
             onValueChange = {
-                text = it
-                textChangeListener.invoke(text)
+                if (it.length <= 200) {
+                    text = it
+                    textChangeListener.invoke(text)
+                    inputTextSize = text.length
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -199,18 +207,84 @@ fun AIDrawingOutlinedTextField(textChangeListener: (String) -> Unit) {
 
         Row(
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(0.dp, 8.dp, 16.dp, 8.dp), verticalAlignment = Alignment.CenterVertically
+                .padding(bottom = 8.dp, end = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "23", style = MaterialTheme.typography.bodySmall)
+            Spacer(modifier = Modifier.weight(1f))
+            Text(text = inputTextSize.toString(), style = MaterialTheme.typography.bodySmall)
             Text(text = "/200", style = MaterialTheme.typography.bodySmall)
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = "清空",
+                modifier = Modifier.clickable {
+                    text = ""
+                    textChangeListener.invoke(text)
+                    inputTextSize = 0
+                },
                 style = TextStyle(color = MaterialTheme.colorScheme.primary, fontSize = 14.sp)
             )
         }
+    }
 
+}
+
+
+@OptIn(ExperimentalFoundationApi::class, ExperimentalGlideComposeApi::class)
+@Composable
+fun AIDrawingImageArea(imageUrls: List<String>, imageClick: () -> Unit) {
+    val pagerState = rememberPagerState()
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        if (imageUrls.isNotEmpty()) {
+            HorizontalPager(
+                pageCount = imageUrls.size,
+                modifier = Modifier.fillMaxWidth(),
+                state = pagerState
+            ) {
+                GlideImage(
+                    model = imageUrls[it],
+                    contentDescription = "暂无图片",
+                    modifier = Modifier
+                        .clickable(onClick = {
+                            imageClick.invoke()
+                        })
+                        .fillMaxSize(),
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 4.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.outline)
+            ) {
+                Text(
+                    text = "${pagerState.currentPage + 1}/${imageUrls.size}",
+                    modifier = Modifier.padding(8.dp, 2.dp),
+                    style = TextStyle(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                )
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 100.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_outline_image_64),
+                    contentDescription = null
+                )
+                Text(
+                    "等你好久了\n快去输入你的创意吧~", style = TextStyle(
+                        textAlign = TextAlign.Center
+                    )
+                )
+            }
+        }
     }
 
 }
@@ -238,13 +312,10 @@ fun AIDrawingClassify(selectedClick: (String) -> Unit) {
             Button(
                 onClick = { selectedButtonIndex = index },
                 modifier = Modifier
-                    .selectable(
-                        selected = (index == selectedButtonIndex),
-                        onClick = {
-                            selectedButtonIndex = index
-                            selectedClick.invoke(buttonLabels[selectedButtonIndex])
-                        }
-                    )
+                    .selectable(selected = (index == selectedButtonIndex), onClick = {
+                        selectedButtonIndex = index
+                        selectedClick.invoke(buttonLabels[selectedButtonIndex])
+                    })
                     .padding(horizontal = 2.dp, vertical = 2.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (index == selectedButtonIndex) MaterialTheme.colorScheme.primary else
@@ -257,6 +328,74 @@ fun AIDrawingClassify(selectedClick: (String) -> Unit) {
                 Text(
                     text = buttonLabels[index],
                     style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AIDrawingEditImageDialog(onDismissRequest: () -> Unit, cancelClick: () -> Unit) {
+    val coroutineScope = rememberCoroutineScope()
+    ModalBottomSheet(onDismissRequest = { onDismissRequest.invoke() }) {
+        Column {
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFDFE1E2))
+                    .height(1.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clickable {
+
+                    },
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "保存到本地相册"
+                )
+            }
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFDFE1E2))
+                    .height(1.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clickable { },
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "分享"
+                )
+            }
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFDFE1E2))
+                    .height(6.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clickable {
+                        cancelClick.invoke()
+                    },
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "取消"
                 )
             }
         }

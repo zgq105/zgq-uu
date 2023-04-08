@@ -148,14 +148,14 @@ object ChatGptHelper {
      * 根据文字描述生成图片
      */
     @OptIn(BetaOpenAI::class)
-    suspend fun createImages(prompt: String): List<String> {
+    suspend fun createImages(prompt: String, imageSize: ImageSize): List<String> {
         val images = arrayListOf<String>()
         try {
             val openAI = OpenAI(API_KEY)
             val imageURL = openAI.imageURL(
                 ImageCreation(
                     prompt,
-                    2, ImageSize.is1024x1024
+                    4, imageSize
                 )
             )
             imageURL.forEach {
@@ -191,22 +191,27 @@ object ChatGptHelper {
      */
     @OptIn(BetaOpenAI::class)
     suspend fun chatAIMajordomo(input: String): List<String> {
-        val openAI = OpenAI(API_KEY)
-        val chatCompletionRequest = ChatCompletionRequest(
-            model = ModelId("gpt-3.5-turbo"),
-            messages = listOf(
-                ChatMessage(
-                    role = ChatRole.User,
-                    content = input
+        val result = arrayListOf<String>()
+        try {
+            val openAI = OpenAI(API_KEY)
+            val chatCompletionRequest = ChatCompletionRequest(
+                model = ModelId("gpt-3.5-turbo"),
+                messages = listOf(
+                    ChatMessage(
+                        role = ChatRole.User,
+                        content = input
+                    )
                 )
             )
-        )
-        val completion = openAI.chatCompletion(chatCompletionRequest)
-        val result = arrayListOf<String>()
-        completion.choices.forEach {
-            Log.d("zgq", "choice-name:${it.message?.name}")
-            Log.d("zgq", "choice-content:${it.message?.content}")
-            it.message?.content?.let { it1 -> result.add(it1) }
+            val completion = openAI.chatCompletion(chatCompletionRequest)
+
+            completion.choices.forEach {
+                Log.d("zgq", "choice-name:${it.message?.name}")
+                Log.d("zgq", "choice-content:${it.message?.content}")
+                it.message?.content?.let { it1 -> result.add(it1) }
+            }
+        } catch (e: Exception) {
+            Log.e("zgq", e.message.toString())
         }
         return result
     }

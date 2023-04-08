@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,6 +27,7 @@ import com.guoqiang.uu.R
 import com.guoqiang.uu.navigation.UU_CHAT_AI_DRAWING_ROUTE
 import com.guoqiang.uu.navigation.UU_CHAT_AI_MAJORDOMO_ROUTE
 import com.guoqiang.uu.ui.theme.*
+import com.guoqiang.uu.utils.LogUtil
 import com.guoqiang.uu.viewmodel.UserViewModel
 
 /**
@@ -33,7 +36,7 @@ import com.guoqiang.uu.viewmodel.UserViewModel
  * destcription:
  */
 @SuppressLint("CoroutineCreationDuringComposition")
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomeScreen(navController: NavHostController) {
     val userViewModel: UserViewModel = hiltViewModel()
@@ -41,7 +44,6 @@ fun HomeScreen(navController: NavHostController) {
     LazyColumn {
         item {
             MainToolbar(settingClick = {
-//                userViewModel.testInsertUserData()
                 userViewModel.getAll()
             })
         }
@@ -51,76 +53,40 @@ fun HomeScreen(navController: NavHostController) {
             }
         }
         item {
-            Row(Modifier.padding(16.dp, 0.dp, 8.dp, 0.dp)) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(0.dp, 0.dp, 8.dp, 8.dp)
-                ) {
-                    MainGridItem(
-                        MainContent("AI翻译官", "精通全球各种自然语言，试试让我帮你翻译"),
-                        Color(0xFF22ACEB)
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(0.dp, 0.dp, 8.dp, 8.dp)
-                ) {
-                    MainGridItem(MainContent("AI解惑", "生活琐事，工作困扰，各种问题都可以找我哦"), Color(0xFFF07B72))
-                }
-            }
-        }
-
-        item {
-            Row(Modifier.padding(16.dp, 0.dp, 8.dp, 0.dp)) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(0.dp, 0.dp, 8.dp, 8.dp)
-                ) {
-                    MainGridItem(MainContent("AI玄机", "破解难题，探索宇宙奥义，探讨生命的本质"), Color(0xFF6D7FE6))
-                }
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(0.dp, 0.dp, 8.dp, 8.dp)
-                ) {
-                    MainGridItem(MainContent("Al作家", "我会文案/检讨书/演讲稿等，说出你的要求吧"), Color(0xFFEC5B8C))
+            val contentItems = arrayListOf(
+                MainContent("AI翻译官", "精通全球各种自然语言，试试让我帮你翻译"),
+                MainContent("Al作家", "我会文案/检讨书/演讲稿等，说出你的要求吧"),
+                MainContent("AI厨师", "试试问问我美味佳肴是如何做出来的吧"),
+                MainContent("Al诗人", "试试让我按照您的要求帮您创作独一无二的诗")
+            )
+            val colors = arrayListOf(
+                Color(0xFF22ACEB),
+                Color(0xFFEC5B8C),
+                Color(0xFFF0C33B),
+                Color(0xFFF39E20)
+            )
+            FlowRow(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                val configuration = LocalConfiguration.current
+                val width = (configuration.screenWidthDp / 2).dp - 4.dp - 16.dp
+                val mainGridItemModifier = Modifier
+                    .width(width)
+                    .clip(RoundedCornerShape(4.dp))
+                    .padding(bottom = 8.dp)
+                for (index in contentItems.indices) {
+                    MainGridItem(contentItems[index], colors[index], mainGridItemModifier)
                 }
             }
         }
-
-        item {
-            Row(Modifier.padding(16.dp, 0.dp, 8.dp, 0.dp)) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(0.dp, 0.dp, 8.dp, 8.dp)
-                ) {
-                    MainGridItem(MainContent("AI厨师", "试试问问我美味佳肴是如何做出来的吧"), Color(0xFFF0C33B))
-                }
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(0.dp, 0.dp, 8.dp, 8.dp)
-                ) {
-                    MainGridItem(MainContent("Al诗人", "试试让我按照您的要求帮您创作独一无二的诗"), Color(0xFFF39E20))
-                }
-            }
-        }
-
         item {
             MainBottomBanner{
                 navController.navigate(UU_CHAT_AI_DRAWING_ROUTE)
             }
         }
-
-//        GlobalScope.launch {
-//            withContext(Dispatchers.IO) {
-//                ChatGptTest.testImages()
-//            }
-//        }
     }
 }
 
@@ -200,7 +166,9 @@ fun MainBanner(onclick: () -> Unit) {
                     }
                     Box(Modifier.align(Alignment.BottomStart)) {
                         TextButton(
-                            onClick = {},
+                            onClick = {
+                                onclick.invoke()
+                            },
                             Modifier
                                 .clip(RoundedCornerShape(2.dp))
                                 .padding(8.dp),
@@ -218,7 +186,9 @@ fun MainBanner(onclick: () -> Unit) {
 
                     Box(Modifier.align(Alignment.BottomEnd)) {
                         TextButton(
-                            onClick = {},
+                            onClick = {
+                                onclick.invoke()
+                            },
                             Modifier
                                 .clip(RoundedCornerShape(6.dp))
                                 .padding(2.dp)
@@ -284,7 +254,7 @@ fun MainBottomBanner(onClick: () -> Unit) {
                     }
                     Box(Modifier.align(Alignment.BottomStart)) {
                         TextButton(
-                            onClick = {},
+                            onClick = { onClick.invoke() },
                             Modifier
                                 .clip(RoundedCornerShape(6.dp))
                                 .padding(2.dp)
@@ -303,7 +273,7 @@ fun MainBottomBanner(onClick: () -> Unit) {
                 }
             }
 
-            Row(Modifier.padding(16.dp, 10.dp, 0.dp, 0.dp)) {
+            Row(Modifier.padding(start = 16.dp, top = 10.dp)) {
                 Text(
                     text = "告诉我你想生成什么风格的图片，我会帮你精心出图哦~",
                     color = MaterialTheme.colorScheme.onPrimary,
@@ -317,10 +287,10 @@ fun MainBottomBanner(onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainGridItem(item: MainContent, color: Color) {
+fun MainGridItem(item: MainContent, color: Color, modifier: Modifier) {
     Card(
-        onClick = {}, Modifier
-            .clip(RoundedCornerShape(4.dp))
+        onClick = {},
+        modifier = modifier
     ) {
         Column(
             Modifier
